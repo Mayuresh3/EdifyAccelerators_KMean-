@@ -1,4 +1,3 @@
-from tkinter.tix import Meter
 from turtle import color
 import streamlit as st
 import numpy as np
