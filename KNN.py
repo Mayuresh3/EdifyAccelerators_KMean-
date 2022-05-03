@@ -1,3 +1,6 @@
+# Import 
+from tkinter.tix import Meter
+from turtle import color
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -22,7 +25,7 @@ from sklearn.decomposition import PCA
 st.title("KNN")
 uploaded_file = st.file_uploader(label="Upload CSV file",type=['csv','xlsx'])
 
-    # Dataset cleaning
+# Dataset cleaning
 @st.cache
 def cleaning(file):
     if file is not None:
@@ -68,53 +71,54 @@ if uploaded_file is not None:
         y=data[target]
         X_train, X_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state=42)
 
-        nn=st.number_input('Pick a KNN number', 1, 1000)
-        weights=st.selectbox("What is the weight type",("uniform","distance"))
+        nn=st.number_input('Pick a KNN number', 0, 1000)
+        if nn>=1:
+            weights=st.selectbox("What is the weight type",("uniform","distance"))
 
-        if data[target].dtype=='float':
-            model = neighbors.KNeighborsRegressor(n_neighbors = nn)
-            model.fit(X_train, y_train)  #fit the model
-            y_pred=model.predict(X_test) #make prediction on test set
-            score = r2_score(y_test, y_pred)
+            if data[target].dtype=='float':
+                model = neighbors.KNeighborsRegressor(n_neighbors = nn)
+                model.fit(X_train, y_train)  #fit the model
+                y_pred=model.predict(X_test) #make prediction on test set
+                score = r2_score(y_test, y_pred)
 
 
-        else:
-            knn = KNeighborsClassifier(n_neighbors=nn,weights=weights)
-            knn.fit(X_train,y_train)
-            y_pred=knn.predict(X_test)
-
-        check1 = st.checkbox("Accuracy Score")
-        if check1:
-            if data[target].dtype=='float64':
-                st.header("Accuracy Score")
-                st.subheader(score)
             else:
-                st.header("Accuracy Score")
-                st.subheader(metrics.accuracy_score(y_test,y_pred))
+                knn = KNeighborsClassifier(n_neighbors=nn,weights=weights)
+                knn.fit(X_train,y_train)
+                y_pred=knn.predict(X_test)
 
-        check2 = st.checkbox("HeatMap")
-        if check2:
-            fig, ax = plt.subplots()
-            sns.heatmap(data.corr(), ax=ax)
-            st.header("Heatmap")
-            st.write(fig)
-            
-        check5 = st.checkbox("KNN-Visualization")
-        if check5:
-            column1=st.selectbox("What is the  column1 to be used for visualization?",(list1))
-            column2=st.selectbox("What is the  column2 to be used for visualization?",(list1))
-            if column1!=column2:
-                x = data[[column1,column2]].values
-                data[target] = data[target].astype('category')
-                data['Types_cat'] = data[target].cat.codes
-                labelencoder = LabelEncoder()
-                data['Types_Cat'] = labelencoder.fit_transform(data[target])
-                    
-                y = data['Types_Cat'].astype(int).values
-                    
-                knn.fit(x,y)
-                fig=plt.figure(figsize=(10, 5))
-                plot_decision_regions(x, y, clf=knn, legend=2)
-                plt.xlabel(column2)
-                plt.ylabel(column1)
-                st.pyplot(fig)
+            check1 = st.checkbox("Accuracy Score")
+            if check1:
+                if data[target].dtype=='float64':
+                    st.header("Accuracy Score")
+                    st.subheader(score)
+                else:
+                    st.header("Accuracy Score")
+                    st.subheader(metrics.accuracy_score(y_test,y_pred))
+
+            check2 = st.checkbox("HeatMap")
+            if check2:
+                fig, ax = plt.subplots()
+                sns.heatmap(data.corr(), ax=ax)
+                st.header("Heatmap")
+                st.write(fig)
+                
+            check5 = st.checkbox("KNN-Visualization")
+            if check5:
+                column1=st.selectbox("What is the  column1 to be used for visualization?",(list1))
+                column2=st.selectbox("What is the  column2 to be used for visualization?",(list1))
+                if column1!=column2:
+                    x = data[[column1,column2]].values
+                    data[target] = data[target].astype('category')
+                    data['Types_cat'] = data[target].cat.codes
+                    labelencoder = LabelEncoder()
+                    data['Types_Cat'] = labelencoder.fit_transform(data[target])
+                        
+                    y = data['Types_Cat'].astype(int).values
+                        
+                    knn.fit(x,y)
+                    fig=plt.figure(figsize=(10, 5))
+                    plot_decision_regions(x, y, clf=knn, legend=2)
+                    plt.xlabel(column2)
+                    plt.ylabel(column1)
+                    st.pyplot(fig)
